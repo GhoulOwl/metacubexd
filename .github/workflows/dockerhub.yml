@@ -41,6 +41,7 @@ jobs:
     needs: sync
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    environment: DOCKERHUB_TOKEN
     env:
       PUBLISH: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
       DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME || 'ghoulowl' }}

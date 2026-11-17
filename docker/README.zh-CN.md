@@ -16,6 +16,8 @@ Docker Hub：`ghoulowl/metacubexd-server`
 | Variable | `DOCKERHUB_REPOSITORY` | `metacubexd-server` |
 | Secret | `DOCKERHUB_TOKEN` | 具有目标 Docker Hub 仓库写入权限的 Access Token |
 
+当前仓库将 Token 保存在名为 `DOCKERHUB_TOKEN` 的 GitHub Environment 中，发布任务已引用该环境。放在 Repository secrets 中也可读取；如果两处都配置，以 Environment secret 为准。
+
 先在 Docker Hub 创建 `ghoulowl/metacubexd-server` 仓库。使用访问令牌，不填 Docker Hub 登录密码，也不要把令牌写进源码。
 
 Actions → **Sync upstream and publish Docker Hub** → Run workflow：
