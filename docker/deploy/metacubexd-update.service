@@ -1,0 +1,11 @@
+[Unit]
+Description=Pull and apply the MetaCubeXD Docker image
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/metacubexd
+ExecStart=/opt/metacubexd/update.sh
+TimeoutStartSec=15min

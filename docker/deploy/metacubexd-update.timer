@@ -1,0 +1,11 @@
+[Unit]
+Description=Check for a new MetaCubeXD image every 15 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=15min
+RandomizedDelaySec=60
+Unit=metacubexd-update.service
+
+[Install]
+WantedBy=timers.target

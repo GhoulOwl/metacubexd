@@ -1,0 +1,20 @@
+services:
+  metacubexd:
+    image: docker.io/ghoulowl/metacubexd-server:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      CONTROL_TOKEN: ${CONTROL_TOKEN:?Set CONTROL_TOKEN in .env}
+      CLASH_SECRET: ${CLASH_SECRET:?Set CLASH_SECRET in .env}
+      CONTROL_PORT: '8080'
+      CLASH_API_PORT: '9090'
+      MIXED_PORT: '7890'
+      TZ: ${TZ:-UTC}
+    ports:
+      - '${BIND_ADDRESS:-127.0.0.1}:8080:8080'
+      - '${BIND_ADDRESS:-127.0.0.1}:9090:9090'
+      - '${BIND_ADDRESS:-127.0.0.1}:7890:7890'
+    volumes:
+      - metacubexd-data:/data
+
+volumes:
+  metacubexd-data:
