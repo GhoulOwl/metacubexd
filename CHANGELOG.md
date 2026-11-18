@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.275.2](https://github.com/MetaCubeX/metacubexd/compare/v1.275.1...v1.275.2) (2026-11-17)
+
+
+### Bug Fixes
+
+* **ci:** revert h3 to v1 and migrate PWA config to generateSW ([7fddf0c](https://github.com/MetaCubeX/metacubexd/commit/7fddf0c70ef7c02d0c057fde516271d770de7655))
+
+## [1.275.1](https://github.com/MetaCubeX/metacubexd/compare/v1.275.0...v1.275.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **deps:** drop global h3 override that broke nitropack ([3549c69](https://github.com/MetaCubeX/metacubexd/commit/3549c69934201e4bc4a333356c56de9a94e9e49e))
+* **ui:** fall back across current IP providers ([#2259](https://github.com/MetaCubeX/metacubexd/issues/2259)) ([54a0adf](https://github.com/MetaCubeX/metacubexd/commit/54a0adf6d1e911a90e5e883d07001d8da6a4cbff))
+
+## [1.275.0](https://github.com/MetaCubeX/metacubexd/compare/v1.274.6...v1.275.0) (2026-11-17)
+
+
+### Features
+
+* **ui:** add VPNDetection as an IP info provider ([#2257](https://github.com/MetaCubeX/metacubexd/issues/2257)) ([62bd42d](https://github.com/MetaCubeX/metacubexd/commit/62bd42d651ddd450ff91b21faf3de1a0353aaea2))
+
+
+### Bug Fixes
+
+* **ui:** bracket IPv6 addresses before the port ([#2256](https://github.com/MetaCubeX/metacubexd/issues/2256)) ([62ca6c9](https://github.com/MetaCubeX/metacubexd/commit/62ca6c99a50be857991eee27aee5e757ab63ea39)), closes [#2255](https://github.com/MetaCubeX/metacubexd/issues/2255)
+
 ## [1.274.6](https://github.com/MetaCubeX/metacubexd/compare/v1.274.5...v1.274.6) (2026-11-09)
 
 
