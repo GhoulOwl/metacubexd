@@ -25,7 +25,9 @@ Actions → **Sync upstream and publish Docker Hub** → Run workflow：
 - `publish=true`：同步、验证，并发布 `latest`、`sha-完整提交号`、`build-运行编号-尝试次数`。
 - `publish=false`：不需要 Docker Hub Token，执行同步、构建和启动验证，不发布镜像。
 
-每 6 小时的第 23 分钟自动检查上游 `main`；有自己的提交时正常 merge，有冲突则停止，不 reset、不强推。这个流程跟随上游开发分支，不只跟随 Release。
+每 6 小时的第 23 分钟自动检查上游 `main`；使用三方补丁合并应用源码，保留 fork 的 `.github/workflows/`，有源码冲突则停止，不强推。这个流程跟随上游开发分支，不只跟随 Release。
+
+上游源码提交号保存在 `docker/upstream-source.sha`。同步不导入上游 Git 提交历史，因此 GitHub 的 ahead/behind 计数不代表应用源码是否已更新。这让同步任务只需 `contents: write`，无需额外保存有工作流修改权限的访问令牌。
 
 同步和构建在同一个工作流中执行，因此不依赖 `GITHUB_TOKEN` 推送触发另一个工作流。定时运行会检查提交标签是否存在，未成功发布的提交会重试；手动运行始终重建。`latest` 和提交标签可以被手动重建覆盖，回退请使用独立的 `build-*` 标签或镜像 digest。
 

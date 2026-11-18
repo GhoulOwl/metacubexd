@@ -33,7 +33,9 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Merge upstream without overwriting fork changes
+      - name: Check upstream synchronization behavior
+        run: python3 docker/test-sync.py
+      - name: Apply upstream source without overwriting fork changes
         id: sync
         run: bash docker/sync-upstream.sh
 
