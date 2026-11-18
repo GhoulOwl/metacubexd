@@ -256,7 +256,7 @@ describe('composables/useControlApi methods', () => {
 
   it('updateGeoAssets() POSTs geo/update', async () => {
     await useControlApi().updateGeoAssets()
-    expect(post).toHaveBeenCalledWith('geo/update')
+    expect(post).toHaveBeenCalledWith('geo/update', { timeout: 390_000 })
   })
 
   it('getRuntimeConfig() GETs config/runtime as text (text/yaml, not JSON)', async () => {

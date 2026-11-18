@@ -26,6 +26,9 @@ const PROFILE_SUBSCRIPTION_TIMEOUT = 45_000
 const PROFILE_VALIDATE_TIMEOUT = 330_000
 const PROFILE_ACTIVATE_TIMEOUT = 360_000
 const PROFILE_REFRESH_AND_ACTIVATE_TIMEOUT = 390_000
+// GEO refresh downloads three databases sequentially; even a healthy proxy can
+// take longer than the ordinary 15s control-request timeout.
+const GEO_UPDATE_TIMEOUT = 390_000
 
 export interface ControlConfig {
   base: string
@@ -204,7 +207,10 @@ export function useControlApi() {
 
     // Geo assets (capability-gated 'geo-assets'). POST downloads the geoip/
     // geosite/mmdb databases into the kernel home dir and echoes { ok, files }.
-    updateGeoAssets: () => client.post('geo/update').json<GeoUpdateResult>(),
+    updateGeoAssets: () =>
+      client
+        .post('geo/update', { timeout: GEO_UPDATE_TIMEOUT })
+        .json<GeoUpdateResult>(),
 
     // Runtime config viewer (capability-gated 'runtime-config'). GET returns the
     // ACTUAL config file the kernel runs with -f as text/yaml (it carries the

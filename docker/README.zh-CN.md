@@ -35,6 +35,22 @@ Actions → **Sync upstream and publish Docker Hub** → Run workflow：
 
 Fork 中上游自带的发布、桌面端和测试工作流在 GitHub 设置中禁用，保留文件以减少同步冲突。仓库长时间没有活动时，GitHub 可能停用定时工作流；需要在 Actions 中重新启用。
 
+## GEO 数据库下载
+
+GEO 下载接口有单独的 390 秒等待时间，避免三个数据库依次下载时触发普通接口的 15 秒超时。
+
+如果服务器直连 GitHub 较慢，可让 Node.js 的下载请求使用容器内的 Mihomo 代理。当前镜像已验证支持 `NODE_USE_ENV_PROXY`：
+
+```yaml
+environment:
+  NODE_USE_ENV_PROXY: '1'
+  HTTP_PROXY: http://127.0.0.1:7890
+  HTTPS_PROXY: http://127.0.0.1:7890
+  NO_PROXY: localhost,127.0.0.1,::1
+```
+
+代理下载依赖 Mihomo 内核运行。若还要直接访问内网的订阅服务器，将相应主机加入 `NO_PROXY`。
+
 ## 在目标机器部署
 
 以下示例适用于已安装 Docker Engine 和 Compose v2 的 Linux 主机。先完成第一次镜像发布。
