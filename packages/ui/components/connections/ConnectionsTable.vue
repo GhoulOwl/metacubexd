@@ -10,6 +10,7 @@ import {
   IconZoomInFilled,
   IconZoomOutFilled,
 } from '@tabler/icons-vue'
+import { copyText } from '~/utils/clipboard'
 
 // Column definition interface
 export interface ConnectionColumn {
@@ -111,8 +112,54 @@ const COLUMN_WIDTHS: Partial<Record<CONNECTIONS_TABLE_ACCESSOR_KEY, number>> = {
   flow: 22,
 }
 
+// Width of the column being dragged. Saved to the store only on release, so
+// localStorage is not written on every pointer move.
+const draggedWidth = ref<{
+  id: CONNECTIONS_TABLE_ACCESSOR_KEY
+  width: number
+} | null>(null)
+
 function columnWidth(col: ConnectionColumn): number {
+  if (draggedWidth.value?.id === col.id) return draggedWidth.value.width
+  const saved = configStore.connectionsTableColumnWidths[col.id]
+  if (typeof saved === 'number' && Number.isFinite(saved) && saved > 0)
+    return saved
   return COLUMN_WIDTHS[col.id] ?? 14
+}
+
+function startColumnResize(col: ConnectionColumn, e: PointerEvent) {
+  const handle = e.currentTarget as HTMLElement
+  const table = handle.closest('table')
+  if (!table) return
+  // Column widths are in em of the table's font size, which follows the
+  // table size setting, so convert the pointer movement with that size.
+  const emPx = Number.parseFloat(getComputedStyle(table).fontSize) || 16
+  const startX = e.clientX
+  const startWidth = columnWidth(col)
+  handle.setPointerCapture?.(e.pointerId)
+
+  const move = (ev: PointerEvent) => {
+    const width = startWidth + (ev.clientX - startX) / emPx
+    draggedWidth.value = {
+      id: col.id,
+      width: Math.round(Math.min(80, Math.max(3, width)) * 10) / 10,
+    }
+  }
+  const end = () => {
+    window.removeEventListener('pointermove', move)
+    window.removeEventListener('pointerup', end)
+    window.removeEventListener('pointercancel', end)
+    if (draggedWidth.value) {
+      configStore.connectionsTableColumnWidths = {
+        ...configStore.connectionsTableColumnWidths,
+        [col.id]: draggedWidth.value.width,
+      }
+    }
+    draggedWidth.value = null
+  }
+  window.addEventListener('pointermove', move)
+  window.addEventListener('pointerup', end)
+  window.addEventListener('pointercancel', end)
 }
 
 const tableStyle = computed(() => ({
@@ -276,11 +323,7 @@ async function copyCell(
   event.stopPropagation()
   const value = getCopyValue(col, conn)
   if (!value) return
-  try {
-    await navigator.clipboard.writeText(value)
-  } catch {
-    return
-  }
+  if (!(await copyText(value))) return
   copiedCellKey.value = cellKey(col, conn)
   if (copiedTimer) clearTimeout(copiedTimer)
   copiedTimer = setTimeout(() => {
@@ -313,7 +356,7 @@ async function copyCell(
           <th
             v-for="col in columns"
             :key="col.id"
-            class="conn-th resize-x overflow-hidden text-left text-xs font-semibold tracking-wide whitespace-nowrap uppercase"
+            class="conn-th relative overflow-hidden text-left text-xs font-semibold tracking-wide whitespace-nowrap uppercase"
           >
             <div class="flex items-center gap-1.5">
               <div
@@ -349,6 +392,14 @@ async function copyCell(
                 <IconZoomInFilled v-else :size="16" />
               </button>
             </div>
+            <span
+              class="conn-col-resizer"
+              :class="{
+                'conn-col-resizer--active': draggedWidth?.id === col.id,
+              }"
+              @pointerdown.prevent.stop="startColumnResize(col, $event)"
+              @click.stop
+            />
           </th>
         </tr>
       </thead>
@@ -459,8 +510,9 @@ async function copyCell(
                 v-if="geoFlag(row.original)"
                 class="conn-geo-flag"
                 :title="geoTooltip(row.original)"
-                >{{ geoFlag(row.original) }}</span
-              >{{ getCardHostText(row.original, props.columns) }}</span
+                >{{ geoFlag(row.original) }}</span>{{
+                getCardHostText(row.original, props.columns)
+              }}</span
             >
             <span class="conn-card__process">{{
               getCardProcessText(row.original, props.columns)
@@ -504,6 +556,26 @@ async function copyCell(
 .conn-th {
   color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
   border-bottom: 1px solid var(--conn-border);
+}
+
+.conn-col-resizer {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  width: 9px;
+  cursor: col-resize;
+  touch-action: none;
+  opacity: 0;
+  background: linear-gradient(
+    to right,
+    transparent 0 6px,
+    color-mix(in oklab, var(--color-base-content) 25%, transparent) 6px 9px
+  );
+}
+
+.conn-th:hover .conn-col-resizer,
+.conn-col-resizer--active {
+  opacity: 1;
 }
 
 /* daisyUI sets these sizes on rows only; also size the table so the em-based
